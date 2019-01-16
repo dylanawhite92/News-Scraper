@@ -36,6 +36,29 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 // Routes
 
+// Home route
+app.get("/", function(req, res) {
+    db.Article.find({"saved": false}, function(error, data) {
+        var hbsObject = {
+            articles: data
+        };
+        res.render("home", hbsObject);
+    });
+});
+
+// Route for articles handlebars
+app.get("/saved", function(req, res) {
+    db.Article.find({"saved": true})
+    .populate("notes").then(function(req, res) {
+        var hbsObject = {
+            articles: articles
+        };
+        res.render("articles", hbsObject);
+    }).catch(function(err) {
+        res.json(err);
+    });
+});
+
 // GET route for scraping New York Times
 app.get("/scrape", function(req, res) {
     axios.get("https://www.nytimes.com/")
@@ -77,7 +100,7 @@ app.get("/scrape", function(req, res) {
 app.get("/articles", function(req, res) {
     db.Article.find({})
     .then(function(dbArticle) {
-        res.json(dbArticle);
+        res.send(dbArticle);
     })
     .catch(function(err) {
         res.json(err);
@@ -89,23 +112,65 @@ app.get("/articles/:id", function(req, res) {
     db.Article.findOne({_id: req.params.id})
     .populate("note")
     .then(function(dbArticle) {
-        res.json(dbArticle);
+        res.send(dbArticle);
     }).catch(function(err) {
         res.json(err);
     });
 });
 
-// Route for saving/updating an article's note
-app.post("/articles/:id", function(req, res) {
-    db.Note.create(req.body)
-    .then(function(dbNote) {
-        return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
-    }).then(function(dbArticle) {
-        res.json(dbArticle);
+// Route for saving/updating an article
+app.post("/articles/save/:id", function(req, res) {
+    db.Article.findOneAndUpdate({ "_id": req.params.id }, {saved: true})
+    .then(function(dbArticle) {
+        res.send(dbArticle);
     }).catch(function(err) {
         res.json(err);
     })
 })
+
+// Route for deleting an article
+app.post("/articles/delete/:id", function(req, res) {
+    db.Article.findOneAndDelete({_id: req.params.id}, {"saved": false, "notes": []})
+    .then(function(dbArticle) {
+        res.send(dbArticle);
+    }).catch(function(err) {
+        res.json(err);
+    })
+});
+
+// Route for saving notes
+app.post("/notes/save/:id", function(req, res) {
+    var newNote = new Note({
+        body: req.body.text,
+        title: req.params.id
+    });
+
+    newNote.create(function(err, note) {
+        if (err) {
+            res.json(err);
+        }
+        else {
+            db.Article.findOneAndUpdate({"_id": req.params.id}, {$push: {"notes": note}})
+            .then(function(note) {
+                res.send(note)
+            }).catch(function(err) {
+                res.json(err);
+            })
+        };
+    });
+});
+
+// Route for deleting notes
+app.delete("/notes/delete/:note_id/:article_id", function(req, res) {
+    db.Note.findOneAndDelete({"_id": req.params.note_id}, function(req, res) {
+        if (err) {
+            res.json(err)
+        }
+        else {
+            
+        }
+    })
+});
 
 // Start the server
 app.listen(PORT, function() {
