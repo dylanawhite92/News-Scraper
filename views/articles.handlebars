@@ -1,9 +1,9 @@
-{{!-- Home Page --}}
+{{!-- Saved Articles --}}
 
 <div class="container">
     <div class="col-md-12 jumbotron">
         <div class="text-center">
-            <h1>A Scraper for the New York Times, using cheerio and MongoDB.</h1>
+            <h1>Saved Articles</h1>
         </div>
     </div>
 
@@ -24,10 +24,15 @@
         {{#else}}
             <div class="pane panel-default">
                 <div class="panel-body">
-                    <h4>Uh oh! Looks like we're fresh out of articles today.</h4>
+                    <h4>You've saved no articles yet!</h4>
                 </div>
             </div>
         {{/if}}
     </div>
-</div>
 
+    {{!-- Modal for Article Notes --}}
+    
+    {{#each article}}
+        {{> notes-modal }}
+    {{/each}}
+</div>
