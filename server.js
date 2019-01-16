@@ -53,9 +53,9 @@ app.get("/scrape", function(req, res) {
             result.link = $(this).parent("div").parent("a").attr("href");
             result.summary = $(this).parent("div").next("p").text();
 
-            if (result.summary === '') {
-                result.summary = "No summary was given for this article! :(";
-            }
+            // if (result.summary === '') {
+            //     result.summary = "No summary was given for this article! :(";
+            // }
 
             // Create a new Article using the result
             db.Article.create(result)
