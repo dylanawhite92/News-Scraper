@@ -1,7 +1,6 @@
 //Dependencies
 var express = require("express");
 var mongoose = require("mongoose");
-var path = require("path");
 var logger = require("morgan");
 // Axios & Cheerio make scraping possible
 var axios = require("axios");
@@ -13,7 +12,7 @@ var db = require("./models");
 var app = express();
 
 // Set host port
-var PORT = 3000;
+var PORT = process.env.PORT || 3000;
 
 // Configure middleware
 
@@ -24,7 +23,7 @@ app.use(express.urlencoded({ extended : true}));
 app.use(express.json());
 
 // Make public a static folder
-app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.static("public"));
 
 // If deployed on Heroku, use the remote database, otherwise use the local database
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
@@ -35,25 +34,7 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 // Home route
 app.get("/", function(req, res) {
-    db.Article.find({"saved": false}, function(error, data) {
-        var hbsObject = {
-            articles: data
-        };
-        res.render("home", hbsObject);
-    });
-});
-
-// Route for articles handlebars
-app.get("/saved", function(req, res) {
-    db.Article.find({"saved": true})
-    .populate("notes").then(function(req, res) {
-        var hbsObject = {
-            articles: articles
-        };
-        res.render("articles", hbsObject);
-    }).catch(function(err) {
-        res.json(err);
-    });
+    res.send("index.html");
 });
 
 // GET route for scraping New York Times
@@ -73,10 +54,6 @@ app.get("/scrape", function(req, res) {
             result.link = $(this).parent("div").parent("a").attr("href");
             result.summary = $(this).parent("div").next("p").text();
 
-            // if (result.summary === '') {
-            //     result.summary = "No summary was given for this article! :(";
-            // }
-
             // Create a new Article using the result
             db.Article.create(result)
             .then(function(dbArticle) {
@@ -94,14 +71,11 @@ app.get("/scrape", function(req, res) {
 });
 
 // Route for getting all Articles from the db
-app.get("/saved", function(req, res) {
+app.get("/articles", function(req, res) {
     // Grab every document in the Articles collection
     db.Article.find({})
       .then(function(dbArticle) {
-        console.log(dbArticle);
-        res.render("saved", {
-          saved: dbArticle
-        });
+        res.json(dbArticle);
       })
       .catch(function(err) {
         // If an error occurred, send it to the client
