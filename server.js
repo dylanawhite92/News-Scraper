@@ -1,7 +1,7 @@
 //Dependencies
 var express = require("express");
-var exphbs = require("express-handlebars");
 var mongoose = require("mongoose");
+var path = require("path");
 var logger = require("morgan");
 // Axios & Cheerio make scraping possible
 var axios = require("axios");
@@ -17,17 +17,14 @@ var PORT = 3000;
 
 // Configure middleware
 
-// Set Handlebars as the default templating engine.
-app.engine("handlebars", exphbs({ defaultLayout: "main" }));
-app.set("view engine", "handlebars");
-
 // use morgan for logging requests
 app.use(logger("dev"));
 // Parse request as JSON
 app.use(express.urlencoded({ extended : true}));
 app.use(express.json());
+
 // Make public a static folder
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, '/public')));
 
 // If deployed on Heroku, use the remote database, otherwise use the local database
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
