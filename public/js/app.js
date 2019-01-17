@@ -18,3 +18,29 @@ $(document).on("click", "#scrape-btn", function() {
         location.reload();
       });
   });
+
+  // When you click the Note button
+$(document).on("click", ".btn-note", function() {
+  
+    $(".modal-title").empty();
+    $(".input").empty();
+  
+    // Save the id from .btn-note
+    var thisId = $(this).attr("data-id");
+    console.log(thisId);
+  
+    $.ajax({
+      method: "GET",
+      url: "/articles/" + thisId
+    }).done(function(data) {
+        console.log(data);
+  
+        $(".modal-title").append(`<h5>${data.title}</h5>`);
+        $(".input").append("<textarea id='bodyinput' name='body'></textarea>");
+        $(".input").append(`<button data-id='${data._id}' id='savenote' class='btn btn-primary btn-sm' style='margin-top:20px;'data-dismiss='modal'>Save Note</button>`);
+  
+        if (data.note) {
+          $("#bodyinput").val(data.note.body);
+        }
+      });
+  });
