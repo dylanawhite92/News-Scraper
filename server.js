@@ -53,6 +53,7 @@ app.get("/scrape", function(req, res) {
             result.title = $(this).text();
             result.link = $(this).parent("div").parent("a").attr("href");
             result.summary = $(this).parent("div").next("p").text();
+            result.source = "New York Times";
 
             // Create a new Article using the result
             db.Article.create(result)

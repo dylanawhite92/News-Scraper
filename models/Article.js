@@ -21,6 +21,9 @@ var ArticleSchema = new Schema({
         type: Boolean,
         default: false
     },
+    source: {
+        type: String
+    },
     // 'note' stores a Note id that allows the user to leave notes on articles
     // The ref property links that id to the Note model so they will be displayed together
     note: {
