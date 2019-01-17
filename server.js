@@ -162,18 +162,15 @@ app.get("/saved", function(req, res) {
     });
 });
   
-  // Route for deleting/updating saved article
-  app.put("/delete/:id", function(req, res) {
-  
-    db.Article
-      .findByIdAndUpdate({ _id: req.params.id }, { $set: { isSaved: false }})
-      .then(function(dbArticle) {
+// Route for deleting/updating saved article
+app.put("/delete/:id", function(req, res) {
+    db.Article.findByIdAndUpdate({ _id: req.params.id }, { $set: { isSaved: false }})
+    .then(function(dbArticle) {
         res.json(dbArticle);
-      })
-      .catch(function(err) {
+    }).catch(function(err) {
         res.json(err);
-      });
-  });
+    });
+});
 
 // Start the server
 app.listen(PORT, function() {
