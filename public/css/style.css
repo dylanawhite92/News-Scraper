@@ -5,3 +5,7 @@
 .jumbotron {
     background-color: white;
 }
+
+textarea {
+    width: -webkit-fill-available;
+}

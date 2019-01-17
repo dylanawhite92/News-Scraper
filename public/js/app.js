@@ -11,15 +11,14 @@ $.getJSON("/articles", function(data) {
 // When you click Scrape
 $(document).on("click", "#scrape-btn", function() {  
     $.ajax({
-      method: "GET",
-      url: "/scrape"
-    })
-      .done(function(data) {
+        method: "GET",
+        url: "/scrape"
+    }).done(function(data) {
         location.reload();
-      });
-  });
+    });
+});
 
-  // When you click the Note button
+// When you click the Note button
 $(document).on("click", ".btn-note", function() {
   
     $(".modal-title").empty();
@@ -30,17 +29,54 @@ $(document).on("click", ".btn-note", function() {
     console.log(thisId);
   
     $.ajax({
-      method: "GET",
-      url: "/articles/" + thisId
+        method: "GET",
+        url: "/articles/" + thisId
     }).done(function(data) {
         console.log(data);
   
         $(".modal-title").append(`<h5>${data.title}</h5>`);
         $(".input").append("<textarea id='bodyinput' name='body'></textarea>");
-        $(".input").append(`<button data-id='${data._id}' id='savenote' class='btn btn-primary btn-sm' style='margin-top:20px;'data-dismiss='modal'>Save Note</button>`);
+        $(".modal-footer").append(`<button data-id='${data._id}' id='saveNote' class='btn btn-primary btn-sm' style='margin-top:20px;'data-dismiss='modal'>Save Note</button>`);
   
         if (data.note) {
-          $("#bodyinput").val(data.note.body);
+            $("#bodyinput").val(data.note.body);
         }
-      });
-  });
+    });
+});
+
+// When you click the Save Note button in the notes modal
+$(document).on("click", "#saveNote", function() {
+    // Grab the id associated with the article from the submit button
+    var thisId = $(this).attr("data-id");
+    console.log(thisId);
+  
+    // Run a POST request to change the note, using what's entered in the inputs
+    $.ajax({
+        method: "POST",
+        url: "/articles/" + thisId,
+        data: {
+            // Value taken from note textarea
+            body: $("#bodyinput").val()
+        }
+    }).done(function(data) {
+        // Log the response
+        console.log(data);
+    });
+  
+    // Clear input values after submission
+    $("#bodyinput").val("");
+});
+
+// When you click the Save Article button
+$(document).on("click", "#btn-save", function() {
+    $(this).addClass("disabled");
+    var thisId = $(this).attr("data-id");
+    console.log(thisId);
+  
+    $.ajax({
+        method: "PUT",
+        url: "/saved/" + thisId,     
+    }).done(function(data) {
+        console.log(data);
+    });
+});
